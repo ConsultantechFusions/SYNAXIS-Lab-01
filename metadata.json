@@ -1,0 +1,7 @@
+{
+  "name": "Synaxis Smart Assistant",
+  "description": "An intelligent file assistant that allows users to upload various document types, interact with their content using voice and text in multiple languages, and generate exportable reports.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

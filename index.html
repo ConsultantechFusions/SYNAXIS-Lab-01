@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Synaxis AI File Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Noto+Naskh+Urdu:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+              arabic: ['Tajawal', 'sans-serif'],
+              urdu: ['Noto Naskh Urdu', 'serif'],
+            },
+            colors: {
+              'brand-dark': '#0f172a',
+              'brand-medium': '#1e293b',
+              'brand-light': '#334155',
+              'brand-accent': '#7c3aed',
+              'brand-accent-hover': '#6d28d9',
+              'brand-gold': '#f59e0b',
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+    "remark-gfm": "https://aistudiocdn.com/remark-gfm@^4.0.1",
+    "pdfjs-dist/": "https://aistudiocdn.com/pdfjs-dist@^5.4.149/",
+    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+    "docx": "https://aistudiocdn.com/docx@^9.5.1",
+    "file-saver": "https://aistudiocdn.com/file-saver@^2.0.5",
+    "jspdf": "https://aistudiocdn.com/jspdf@^3.0.3",
+    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+    "xlsx": "https://aistudiocdn.com/xlsx@^0.18.5",
+    "papaparse": "https://aistudiocdn.com/papaparse@^5.5.3",
+    "mammoth": "https://aistudiocdn.com/mammoth@^1.11.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-dark text-slate-200">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
