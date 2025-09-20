@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { FileUpload } from './components/FileUpload';
 import { ChatInterface } from './components/ChatInterface';
 import { CanvasPanel } from './components/CanvasPanel';
+import { QuickActions } from './components/QuickActions';
+import { LiveTranscription } from './components/LiveTranscription';
 import { parseFile } from './services/fileParserService';
 import { getAiResponse, getAiCanvasResponse } from './services/geminiService';
 // Fix: Import setCurrentLanguage to update localization state.
@@ -14,7 +15,7 @@ import { LoadingSpinner } from './components/icons';
 
 const App: React.FC = () => {
     const [language, setLanguage] = useState<Language>('en');
-    const [fileData, setFileData] = useState<FileData | null>(null);
+    const [fileData, setFileData] = useState<FileData[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [canvasContent, setCanvasContent] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -33,19 +34,21 @@ const App: React.FC = () => {
         setCurrentLanguage(language);
     }, [language]);
     
-    const handleFileProcess = async (file: File) => {
+    const handleFileProcess = async (files: File[]) => {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await parseFile(file);
+            const data = await Promise.all(files.map(file => parseFile(file)));
             setFileData(data);
             setMessages([{ 
                 sender: 'system', 
-                text: `File "${file.name}" processed successfully. You can now ask questions about it.` 
+                text: `${files.length} file(s) processed successfully. You can now ask questions about them.`,
+                timestamp: new Date().toISOString()
             }]);
-            setCanvasContent(`## ${file.name}\n\n*   **Type:** ${data.type}\n*   **Size:** ${(file.size / 1024).toFixed(2)} KB\n\nReady for your questions.`);
+            const fileList = data.map(f => `*   **${f.name}** (${f.type})`).join('\n');
+            setCanvasContent(`## ${files.length} File(s) Processed\n\n${fileList}\n\nReady for your questions.`);
         } catch (err) {
-            setError('Failed to process file. Please try a different file.');
+            setError('Failed to process one or more files. Please try a different file.');
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -53,12 +56,12 @@ const App: React.FC = () => {
     };
 
     const handleSendMessage = useCallback(async (text: string, isCanvasQuery: boolean = false) => {
-        if (!fileData) {
-            setError('Please upload a file first.');
+        if (fileData.length === 0) {
+            setError('Please upload files first.');
             return;
         }
 
-        const userMessage: Message = { sender: 'user', text };
+        const userMessage: Message = { sender: 'user', text, timestamp: new Date().toISOString() };
         setMessages(prev => [...prev, userMessage]);
         setIsLoading(true);
         setError(null);
@@ -67,17 +70,17 @@ const App: React.FC = () => {
             if (isCanvasQuery) {
                 const responseText = await getAiCanvasResponse(fileData, text, language);
                 setCanvasContent(responseText);
-                const systemMessage: Message = { sender: 'system', text: "Canvas updated based on your request." };
+                const systemMessage: Message = { sender: 'system', text: "Canvas updated based on your request.", timestamp: new Date().toISOString() };
                 setMessages(prev => [...prev, systemMessage]);
             } else {
                 const responseText = await getAiResponse(fileData, text, language);
-                const aiMessage: Message = { sender: 'ai', text: responseText };
+                const aiMessage: Message = { sender: 'ai', text: responseText, timestamp: new Date().toISOString() };
                 setMessages(prev => [...prev, aiMessage]);
             }
         } catch (err) {
             const errorMessage = 'An error occurred while communicating with the AI. Please check your API key and try again.';
             setError(errorMessage);
-            setMessages(prev => [...prev, { sender: 'system', text: errorMessage }]);
+            setMessages(prev => [...prev, { sender: 'system', text: errorMessage, timestamp: new Date().toISOString() }]);
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -94,18 +97,23 @@ const App: React.FC = () => {
             <main className="flex-grow flex flex-col lg:flex-row gap-4 w-full max-w-7xl mx-auto mt-4">
                 <div className="flex flex-col gap-4 lg:w-1/2">
                     <FileUpload onFileProcess={handleFileProcess} disabled={isLoading} />
+                    {fileData.length > 0 && (
+                        <QuickActions onAction={handleSendMessage} disabled={isLoading} />
+                    )}
                     <ChatInterface 
                         messages={messages} 
                         onSendMessage={handleSendMessage} 
-                        disabled={!fileData || isLoading}
+                        disabled={fileData.length === 0 || isLoading}
                         currentLang={language}
                     />
                 </div>
                 <div className="lg:w-1/2 flex flex-col">
-                    <CanvasPanel content={canvasContent} />
+                    <CanvasPanel content={canvasContent} currentLang={language} />
                 </div>
             </main>
             
+            <LiveTranscription />
+
             {isLoading && (
               <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                   <LoadingSpinner className="w-16 h-16 text-brand-accent"/>

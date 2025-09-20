@@ -1,5 +1,14 @@
+import type { Language, LocalizationContent } from './types';
 
-import type { LocalizationContent } from './types';
+export const TRANSLATION_LANGUAGES: { code: Language; name: string }[] = [
+    { code: 'en', name: 'English' },
+    { code: 'ar', name: 'Arabic' },
+    { code: 'es', name: 'Spanish' },
+    { code: 'fr', name: 'French' },
+    { code: 'de', name: 'German' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'ur', name: 'Urdu' },
+];
 
 export const LOCALIZATION: LocalizationContent = {
     // FileUpload Component
@@ -34,6 +43,11 @@ export const LOCALIZATION: LocalizationContent = {
         ar: 'إرسال',
         ur: 'بھیجیں'
     },
+    'send_to_chat': {
+        en: 'Send to Chat',
+        ar: 'إرسال إلى المحادثة',
+        ur: 'چیٹ پر بھیجیں'
+    },
     'listening': {
         en: 'Listening...',
         ar: 'يستمع...',
@@ -49,11 +63,36 @@ export const LOCALIZATION: LocalizationContent = {
         ar: 'إنشاء على اللوحة',
         ur: 'کینوس پر بنائیں'
     },
+    'export_chat': {
+        en: 'Export Chat',
+        ar: 'تصدير المحادثة',
+        ur: 'چیٹ برآمد کریں'
+    },
     // CanvasPanel Component
     'canvas_panel': {
         en: 'Canvas Panel',
         ar: 'لوحة العرض',
         ur: 'کینوس پینل'
+    },
+    'speak_canvas': {
+        en: 'Speak Canvas Content',
+        ar: 'نطق محتوى اللوحة',
+        ur: 'کینوس کا مواد بولیں'
+    },
+    'stop_speaking': {
+        en: 'Stop Speaking',
+        ar: 'إيقاف النطق',
+        ur: 'بولنا بند کریں'
+    },
+    'select_female_voice': {
+        en: 'Select Female Voice',
+        ar: 'اختر الصوت الأنثوي',
+        ur: 'خاتون کی آواز منتخب کریں'
+    },
+    'select_male_voice': {
+        en: 'Select Male Voice',
+        ar: 'اختر الصوت الذكوري',
+        ur: 'مرد کی آواز منتخب کریں'
     },
     'export_options': {
         en: 'Export Options',
@@ -79,5 +118,47 @@ export const LOCALIZATION: LocalizationContent = {
         en: 'Export PNG',
         ar: 'تصدير PNG',
         ur: 'پی این جی برآمد کریں'
-    }
+    },
+    // Quick Actions
+    'quick_actions': {
+        en: 'Quick Actions',
+        ar: 'إجراءات سريعة',
+        ur: 'فوری کارروائیاں'
+    },
+    'summarize_file': {
+        en: 'Summarize File',
+        ar: 'تلخيص الملف',
+        ur: 'فائل کا خلاصہ'
+    },
+    'create_mind_map': {
+        en: 'Create Mind Map',
+        ar: 'إنشاء خريطة ذهنية',
+        ur: 'ذہنی نقشہ بنائیں'
+    },
+    'analyze_data': {
+        en: 'Analyze Data & Tables',
+        ar: 'تحليل البيانات والجداول',
+        ur: 'ڈیٹا اور میزوں کا تجزیہ کریں'
+    },
+    // Live Transcription Component
+    'live_transcription': {
+        en: 'Live Transcription',
+        ar: 'نسخ حي',
+        ur: 'براہ راست نقل'
+    },
+    'translation_language': {
+        en: 'Translation Language',
+        ar: 'لغة الترجمة',
+        ur: 'ترجمہ کی زبان'
+    },
+    'original_language': {
+        en: 'Original Language',
+        ar: 'اللغة الأصلية',
+        ur: 'اصل زبان'
+    },
+    'translating': {
+        en: 'Translating...',
+        ar: 'جارٍ الترجمة...',
+        ur: 'ترجمہ کیا جا رہا ہے...'
+    },
 };

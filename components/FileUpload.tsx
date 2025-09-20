@@ -4,19 +4,20 @@ import { useLocalization } from '../hooks/useLocalization';
 import { UploadIcon, FileIcon } from './icons';
 
 interface FileUploadProps {
-    onFileProcess: (file: File) => void;
+    onFileProcess: (files: File[]) => void;
     disabled: boolean;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileProcess, disabled }) => {
     const [dragActive, setDragActive] = useState(false);
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [fileNames, setFileNames] = useState<string[]>([]);
     const { t } = useLocalization();
 
-    const handleFile = useCallback((files: FileList | null) => {
-        if (files && files[0]) {
-            setFileName(files[0].name);
-            onFileProcess(files[0]);
+    const handleFiles = useCallback((files: FileList | null) => {
+        if (files && files.length > 0) {
+            const fileArray = Array.from(files);
+            setFileNames(fileArray.map(f => f.name));
+            onFileProcess(fileArray);
         }
     }, [onFileProcess]);
 
@@ -35,16 +36,16 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileProcess, disabled 
         e.stopPropagation();
         setDragActive(false);
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleFile(e.dataTransfer.files);
+            handleFiles(e.dataTransfer.files);
         }
-    }, [handleFile]);
+    }, [handleFiles]);
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         if (e.target.files && e.target.files[0]) {
-            handleFile(e.target.files);
+            handleFiles(e.target.files);
         }
-    }, [handleFile]);
+    }, [handleFiles]);
 
     return (
         <div className="bg-brand-medium p-4 rounded-lg border-2 border-dashed border-brand-light h-48 flex flex-col justify-center items-center text-center transition-colors duration-300">
@@ -56,17 +57,29 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileProcess, disabled 
                     onChange={handleChange}
                     disabled={disabled}
                     accept=".pdf,.docx,.xlsx,.csv,.json,.md,.png,.jpg,.jpeg"
+                    multiple
                 />
                 <label
                     id="label-file-upload"
                     htmlFor="input-file-upload"
-                    className={`h-full flex flex-col justify-center items-center cursor-pointer ${dragActive ? "bg-brand-light" : ""}`}
+                    className={`h-full w-full flex flex-col justify-center items-center cursor-pointer ${dragActive ? "bg-brand-light" : ""}`}
                 >
-                    {fileName ? (
-                        <div className="flex flex-col items-center">
-                            <FileIcon className="w-10 h-10 text-brand-accent mb-2"/>
-                            <p className="font-semibold text-slate-200 break-all px-2">{fileName}</p>
-                            <p className="text-sm text-slate-400">{t(disabled ? 'processing_file' : 'file_processed')}</p>
+                    {fileNames.length > 0 ? (
+                        <div className="flex flex-col items-center w-full px-4 h-full">
+                            <FileIcon className="w-8 h-8 text-brand-accent mb-2 flex-shrink-0"/>
+                            <p className="font-semibold text-slate-200 text-sm mb-1 flex-shrink-0">
+                                {disabled ? `Processing ${fileNames.length} file(s)...` : `${fileNames.length} file(s) processed`}
+                            </p>
+                            <div className="overflow-y-auto text-xs text-slate-400 text-left w-full">
+                                <ul className="list-disc list-inside">
+                                    {fileNames.map((name, index) => <li key={index} className="truncate">{name}</li>)}
+                                </ul>
+                            </div>
+                            {disabled && (
+                                <div className="w-full bg-brand-light rounded-full h-2 mt-auto">
+                                    <div className="bg-brand-accent h-2 rounded-full animate-pulse"></div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center">
