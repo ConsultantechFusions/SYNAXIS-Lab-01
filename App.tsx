@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
@@ -20,6 +21,8 @@ const App: React.FC = () => {
     const [canvasContent, setCanvasContent] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [chatInput, setChatInput] = useState('');
+    const [canvasPreviewContent, setCanvasPreviewContent] = useState<string | null>(null);
 
     useEffect(() => {
         document.documentElement.lang = language;
@@ -61,10 +64,13 @@ const App: React.FC = () => {
             return;
         }
 
+        setCanvasPreviewContent(null); // Hide preview on send
+        // Fix: Corrected typo `new D ate()` to `new Date()`.
         const userMessage: Message = { sender: 'user', text, timestamp: new Date().toISOString() };
         setMessages(prev => [...prev, userMessage]);
         setIsLoading(true);
         setError(null);
+        setChatInput(''); // Clear input field immediately
 
         try {
             if (isCanvasQuery) {
@@ -105,10 +111,19 @@ const App: React.FC = () => {
                         onSendMessage={handleSendMessage} 
                         disabled={fileData.length === 0 || isLoading}
                         currentLang={language}
+                        inputValue={chatInput}
+                        onInputValueChange={(value) => {
+                            setChatInput(value);
+                            setCanvasPreviewContent(value);
+                        }}
                     />
                 </div>
                 <div className="lg:w-1/2 flex flex-col">
-                    <CanvasPanel content={canvasContent} currentLang={language} />
+                    <CanvasPanel 
+                        content={canvasContent} 
+                        currentLang={language} 
+                        previewContent={canvasPreviewContent} 
+                    />
                 </div>
             </main>
             

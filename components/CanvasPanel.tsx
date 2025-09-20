@@ -10,9 +10,10 @@ import { PdfIcon, DocxIcon, XlsxIcon, PngIcon, SpeakerWaveIcon, SpeakerXMarkIcon
 interface CanvasPanelProps {
     content: string;
     currentLang: Language;
+    previewContent?: string | null;
 }
 
-export const CanvasPanel: React.FC<CanvasPanelProps> = ({ content, currentLang }) => {
+export const CanvasPanel: React.FC<CanvasPanelProps> = ({ content, currentLang, previewContent }) => {
     const { t } = useLocalization();
     const canvasRef = useRef<HTMLDivElement>(null);
     const controlsRef = useRef<HTMLDivElement>(null);
@@ -93,6 +94,10 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({ content, currentLang }
         controlsRef.current.style.display = 'flex';
     };
 
+    const isPreviewing = previewContent !== null && previewContent !== undefined;
+    const displayContent = isPreviewing ? previewContent : content;
+
+
     return (
         <div className="bg-brand-medium rounded-lg flex flex-col flex-grow h-[70vh] lg:h-auto">
             <div className="p-4 border-b border-brand-light flex justify-between items-center">
@@ -119,11 +124,19 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({ content, currentLang }
                 </div>
             </div>
             {/* Fix: The 'className' prop is not valid on ReactMarkdown. Moved styling to the parent div. */}
-            <div ref={canvasRef} className="flex-grow p-4 overflow-y-auto bg-slate-900/50 rounded-b-lg prose prose-invert max-w-none prose-table:w-full prose-table:table-auto prose-td:px-2 prose-td:py-1 prose-th:px-2 prose-th:py-1 prose-th:bg-brand-light">
+            <div 
+                ref={canvasRef} 
+                className={`relative flex-grow p-4 overflow-y-auto bg-slate-900/50 rounded-b-lg prose prose-invert max-w-none prose-table:w-full prose-table:table-auto prose-td:px-2 prose-td:py-1 prose-th:px-2 prose-th:py-1 prose-th:bg-brand-light transition-all ${isPreviewing ? 'border-2 border-dashed border-brand-accent' : 'border-2 border-transparent'}`}
+            >
+                {isPreviewing && (
+                    <div className="absolute top-2 right-2 rtl:left-2 rtl:right-auto bg-brand-accent text-white text-xs font-bold px-2 py-1 rounded-full z-10 animate-pulse">
+                        LIVE PREVIEW
+                    </div>
+                )}
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                 >
-                    {content}
+                    {displayContent}
                 </ReactMarkdown>
             </div>
         </div>

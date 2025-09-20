@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import saveAs from 'file-saver';
 import type { Message, Language } from '../types';
 import { useLocalization } from '../hooks/useLocalization';
@@ -11,10 +11,11 @@ interface ChatInterfaceProps {
     onSendMessage: (text: string, isCanvasQuery?: boolean) => void;
     disabled: boolean;
     currentLang: Language;
+    inputValue: string;
+    onInputValueChange: (value: string) => void;
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, disabled, currentLang }) => {
-    const [inputText, setInputText] = useState('');
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, disabled, currentLang, inputValue, onInputValueChange }) => {
     const { t } = useLocalization();
     const { isListening, transcript, startListening, stopListening, isSpeaking, speak, cancelSpeaking } = useSpeech({ lang: currentLang });
     const [speakingMessageIndex, setSpeakingMessageIndex] = useState<number | null>(null);
@@ -22,9 +23,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
 
     useEffect(() => {
         if (transcript) {
-            setInputText(transcript);
+            onInputValueChange(transcript);
         }
-    }, [transcript]);
+    }, [transcript, onInputValueChange]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,10 +39,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
     }, [isSpeaking, speakingMessageIndex]);
 
     const handleSend = (isCanvasQuery: boolean = false) => {
-        if (inputText.trim()) {
+        if (inputValue.trim()) {
             cancelSpeaking();
-            onSendMessage(inputText, isCanvasQuery);
-            setInputText('');
+            onSendMessage(inputValue, isCanvasQuery);
         }
     };
     
@@ -49,7 +49,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
         if (isListening) {
             stopListening();
         } else {
-            setInputText('');
+            onInputValueChange('');
             cancelSpeaking();
             startListening();
         }
@@ -73,6 +73,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
         saveAs(blob, 'chat_history.json');
     };
 
+
+
     const getMessageIcon = (sender: Message['sender']) => {
         switch (sender) {
             case 'user': return <UserIcon className="w-6 h-6 text-slate-300" />;
@@ -86,7 +88,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
         if (isListening) {
             stopListening();
         }
-        setInputText(e.target.value);
+        onInputValueChange(e.target.value);
     };
 
     return (
@@ -136,7 +138,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                 <div className="flex items-center gap-2 bg-brand-dark rounded-lg p-1">
                     <input
                         type="text"
-                        value={inputText}
+                        value={inputValue}
                         onChange={handleInputChange}
                         onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                         placeholder={isListening ? t('listening') : t('type_message')}
@@ -146,10 +148,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                     <button onClick={toggleListen} disabled={disabled} className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 animate-pulse' : 'hover:bg-brand-light'}`}>
                         <MicIcon className="w-5 h-5" />
                     </button>
-                    <button onClick={() => handleSend(false)} disabled={disabled || !inputText} className="px-3 py-2 text-sm font-semibold rounded-md bg-brand-light hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <button onClick={() => handleSend(false)} disabled={disabled || !inputValue} className="px-3 py-2 text-sm font-semibold rounded-md bg-brand-light hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         {t('send_to_chat')}
                     </button>
-                    <button onClick={() => handleSend(true)} disabled={disabled || !inputText} className="px-3 py-2 text-sm font-semibold rounded-md bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white">
+                    <button onClick={() => handleSend(true)} disabled={disabled || !inputValue} className="px-3 py-2 text-sm font-semibold rounded-md bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white">
                         {t('generate_on_canvas')}
                     </button>
                 </div>
